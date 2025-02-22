@@ -1,0 +1,27 @@
+.wishListItemContainer{
+    width: 450px;
+    height: 150px;
+    border: 1px solid black;
+    position: relative;
+    display: flex;
+    gap: 10px;
+}
+
+.imageContainer{
+    width: 200px;
+    height: 100%;
+}
+
+.nameContainer{
+    display: flex;
+    align-items: flex-end;
+    font-size: 16px;
+    color: white;
+}
+
+.priceContainer{
+    display: flex;
+    align-items: flex-end;
+    font-size: 20px;
+    color: #ffffff;
+}

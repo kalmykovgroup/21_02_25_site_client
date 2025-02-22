@@ -1,0 +1,15 @@
+.wishListItemsContainer {
+    width: 100%;
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    flex-direction: column;
+}
+
+.loading, .error {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: red;
+}
+
