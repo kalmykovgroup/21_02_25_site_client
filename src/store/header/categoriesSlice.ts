@@ -5,17 +5,19 @@ import {fetchCategories} from "../../api/CategorySpace/CategoryService/CategoryS
 
 interface CategoryState {
     categories: CategoryDto[];
-    activeCategory: CategoryDto | null;
-    isOpenCategoryMenu: boolean;
-    isLoading: boolean;
+
+    isOpenCategoryMenu: boolean; //Открыто ли меню категорий
+    isLoading: boolean; //Если идет загрузка категорий
+    selectedCategory?: CategoryDto; //Выбранная категория
 }
 
 
 const initialState: CategoryState = {
     categories: [],
-    activeCategory: null,
+
     isOpenCategoryMenu: false,
-    isLoading: false
+    isLoading: false,
+    selectedCategory: undefined,
 };
 
 // ✅ Асинхронный запрос для получения категорий
@@ -35,12 +37,12 @@ const categorySlice = createSlice({
     name: "categories",
     initialState,
     reducers: {
-        setActiveCategory: (state, action: PayloadAction<CategoryDto | null>) => {
-            state.activeCategory = action.payload;
+        setSelectedCategory(state, action: PayloadAction<CategoryDto>) {
+            state.selectedCategory = action.payload;
         },
-        toggleOpenCategoryMenu: (state) => {
-            state.isOpenCategoryMenu = !state.isOpenCategoryMenu;
-        },
+        setIsOpenCategoryMenu: (state, action: PayloadAction<boolean>) => {
+            state.isOpenCategoryMenu = action.payload;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -57,5 +59,5 @@ const categorySlice = createSlice({
     },
 });
 
-export const { setActiveCategory, toggleOpenCategoryMenu } = categorySlice.actions;
+export const {setIsOpenCategoryMenu, setSelectedCategory } = categorySlice.actions;
 export default categorySlice.reducer;

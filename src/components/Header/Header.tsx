@@ -8,28 +8,25 @@ import Orders from "./Orders/Orders.tsx";
 import WishList from "./WishList/WishList.tsx";
 import Cart from "./Cart/Cart.tsx";
 import Profile from "./Profile/Profile.tsx";
-import {useSelector} from "react-redux";
-import {RootState} from "../../store/store.ts";
 import SearchBar from "./SearchBar/SearchBar.tsx";
 
 
-const Header2: React.FC = () => {
+const Header: React.FC = () => {
     const { isDesktop } = useDevice();
-    const {isOpenCategoryMenu} = useSelector((state: RootState) => state.categorySlice);
 
     return (
         <>
-            {/*{ this.visBlackout}*/}
 
             <div className={styles.header}>
-                <div /*style={{zIndex: this.state.cancelingBlackoutZIndex}}*/ className={styles.navigateContainer}>
+                <div className={styles.navigateContainer}>
 
 
                     <div className={styles.navigations}>
 
                         <Logo className={styles.logo}/>
 
-                       <Menu className={styles.menu} />
+                        <Menu className={styles.menu} />
+
                         <SearchBar className={styles.search}/>
 
                         {isDesktop && (
@@ -43,9 +40,8 @@ const Header2: React.FC = () => {
 
                     </div>
 
-                    <div className={styles.categoryContainer} style={{"display": isOpenCategoryMenu ? "block" : "none"}}>
-                        <CategoryMenu/>
-                    </div>
+                   <CategoryMenu/>
+
                 </div>
 
             </div>
@@ -53,4 +49,4 @@ const Header2: React.FC = () => {
     );
 };
 
-export default Header2;
+export default Header;

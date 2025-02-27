@@ -1,11 +1,8 @@
 
-import noImage from "../../../assets/images/no-image.svg";
 import {ShortProductDtoUiExtended} from "../../../api/ProductSpace/ProductService/UI/ShortProductDtoUiExtended.ts"; // ✅ Импорт файла
 import styles from "./ProductCard.module.css";
-import {useAppDispatch} from "../../../hooks/hooks.ts";
-import React, {useState} from "react";
-import {toggleFavoriteThunk} from "../../../store/productSpace/wishListSlice.ts";
-import FavoriteButton from "./FavoriteButton/FavoriteButton.tsx";
+import homeProductContainerStyles from "../HomeProductContainer/HomeProductContainer.module.css";
+import React from "react";
 import ProductImage from "./ProductImage/ProductImage.tsx";
 
 interface ProductCardProps {
@@ -17,9 +14,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
     return (
 
-        <div className={styles.productItem}>
+        <div className={`${styles.productItem} ${homeProductContainerStyles.productItem}`}>
 
-            <div className={styles.productContent}>
+            <div className={`${styles.productContent} ${homeProductContainerStyles.productContent}`}>
 
                 <ProductImage product={product} />
 

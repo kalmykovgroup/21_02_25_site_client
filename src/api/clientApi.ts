@@ -20,23 +20,20 @@ apiClient.interceptors.response.use(
     (error) => {
         console.error("❌ API Error:", error);
 
+        let errorMessage = "Произошла ошибка";
+
         if (error.response?.status === 401) {
             console.warn("🔒 401 Unauthorized: Выход из системы...");
-
-            store.dispatch(logoutThunk()); // ✅ Автоматический выход при потере авторизации
-            // 2. Показываем модальное окно входа
+            store.dispatch(logoutThunk());
             store.dispatch(setAuthModalOpen(true));
-        }else{
-            store.dispatch(addNotification({ message: error, type: "error" }));
+            errorMessage = i18n.t("errors.unauthorized");
+        } else if (error.response) {
+            // ✅ Достаем `message` из ответа сервера (если есть)
+            errorMessage = error.response.data?.message || `Ошибка ${error.response.status}`;
         }
 
-
-        const message =
-            error.response?.status === 401
-                ? i18n.t("errors.unauthorized")
-                : i18n.t("errors.serverError");
-
-        store.dispatch(addNotification({ type: "error", message: message }));
+        // ✅ Теперь передаём строку вместо объекта ошибки
+        store.dispatch(addNotification({ message: errorMessage, type: "error" }));
 
         return Promise.reject(error);
     }

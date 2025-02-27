@@ -14,11 +14,7 @@ const WishListItem: React.FC<WishListItemProps> = ({ product }) => {
 
         <div className={styles.wishListItemContainer}>
 
-
-
-                  <ProductImage product={product} />
-
-
+                <ProductImage product={product} />
 
                 <div className={`${styles.nameContainer}`}>
 

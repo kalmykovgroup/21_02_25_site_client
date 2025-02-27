@@ -11,5 +11,34 @@
 }
 
 .header_right_item img{
-    width: 18px;
+    width: 22px;
+}
+
+.countContainer{
+    position: absolute;
+    right: 10px;
+    top: -5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.countContainer .circle{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ff0000;
+    color: #fff;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid white;
+    line-height: 14px;
+
+}
+.countContainer .twoDigit{
+    width: 23px;
+    height: 18px;
+    border-radius: 18px;
 }

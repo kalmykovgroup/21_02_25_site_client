@@ -1,21 +1,14 @@
 
 import styles from "./WishListItemsContainer.module.css";
-import React, {useEffect} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "../../../store/store.ts";
-import {syncWishListWithServer} from "../../../store/productSpace/wishListSlice.ts";
+import React from "react";
+import {useSelector} from "react-redux";
+import {RootState} from "../../../store/store.ts";
 import WishListItem from "./WishListItem/WishListItem.tsx";
 
 const WishListItemsContainer: React.FC = ( ) => {
 
-    const dispatch = useDispatch<AppDispatch>();
     const { wishList, isLoading} = useSelector((state: RootState) => state.wishListSlice);
 
-    useEffect(() => {
-        if(wishList.length == 0){
-            dispatch(syncWishListWithServer());
-        }
-    }, [dispatch, wishList.length]);
 
     if (isLoading) return <p>Загрузка избранного...</p>;
 

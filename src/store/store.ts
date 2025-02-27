@@ -1,30 +1,43 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // Используем localStorage
-import productsSlice from './productSpace/productsSlice.ts';
+import {persistedProductsReducer} from './productSpace/productsSlice.ts';
 import authSlice from './userSpace/authSlice.ts';
 import uiSlice from './uiSlice.ts';
 import notificationSlice from './notificationSlice.ts';
 import categoriesSlice from "./header/categoriesSlice.ts";
 import searchSlice from "./header/searchSlice.ts";
 import wishListSlice from "./productSpace/wishListSlice.ts";
+import scrollSlice from "./scrollSlice.ts";
+import {persistedSearchProductsContainerReducer} from "./productSpace/searchProductContainerSlice.ts";
+import {persistedHomeProductsContainerReducer} from "./productSpace/homeProductContainerSlice.ts";
 
 // 🔹 Конфигурация persist
 const persistConfig = {
     key: 'root',       // Ключ для хранения в localStorage
     storage,           // Где хранить (localStorage)
-    whitelist: ['authSlice', 'uiSlice', 'notificationsSlice', 'categoriesSlice', 'searchSlice', 'wishListSlice', 'productsSlice'], // Какие редюсеры сохранять
+    whitelist: ['scrollSlice',
+                'authSlice',
+                'uiSlice',
+                'notificationsSlice',
+                'categoriesSlice',
+                'searchSlice',
+                'wishListSlice'
+    ], // Какие редюсеры сохранять
 };
 
 // 🔹 Комбинированный редюсер (все редюсеры приложения)
 const rootReducer = combineReducers({
-    productsSlice: productsSlice, // ❌ НЕ сохраняем (данные API)
-    authSlice: authSlice,         // ✅ Сохраняем (авторизация)
-    uiSlice: uiSlice,             // ✅ Сохраняем (UI настройки)
-    notificationsSlice: notificationSlice, // ✅ Сохраняем (уведомления)
+    productsSlice: persistedProductsReducer,
+    searchProductsContainerSlice: persistedSearchProductsContainerReducer,
+    homeProductsContainerSlice: persistedHomeProductsContainerReducer,
+    authSlice: authSlice,
+    uiSlice: uiSlice,
+    notificationsSlice: notificationSlice,
     categorySlice: categoriesSlice,
     searchSlice: searchSlice,
     wishListSlice: wishListSlice,
+    scrollSlice: scrollSlice,
 });
 
 // 🔹 Оборачиваем rootReducer в persistReducer

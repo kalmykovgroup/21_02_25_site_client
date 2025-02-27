@@ -1,8 +1,8 @@
 import React from "react";
 import styles from "../../Header/Menu/Menu.module.css";
-import {toggleOpenCategoryMenu} from "../../../store/header/categoriesSlice.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../../store/store.ts";
+import {setIsOpenCategoryMenu} from "../../../store/header/categoriesSlice.ts";
 
 interface MenuProps {
     className?: string
@@ -14,14 +14,8 @@ const Menu: React.FC<MenuProps> = ({className}: MenuProps) => {
     const {isOpenCategoryMenu} = useSelector((state: RootState) => state.categorySlice);
 
     return (
-            <button className={`${styles.menu} ${className || ''}`} onClick={() => dispatch(toggleOpenCategoryMenu())}
-                   /* onMouseEnter={() => this.setState({
-                        colorIcon: "#ffffff"
-                    })}
-                    onMouseLeave={() => this.setState({
-                        colorIcon: "#000000"
-                    })}*/>
-
+            <button className={`${styles.menu} ${className || ''}`}
+                    onClick={() => dispatch(setIsOpenCategoryMenu(!isOpenCategoryMenu))}>
 
                 <svg id={styles['hamburger']} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path className={`${styles.l1} ${isOpenCategoryMenu ? styles.l1Transform : ""}`}

@@ -4,20 +4,13 @@
     color: black;
     position: relative;
     cursor: pointer;
-    box-shadow: 0 0 8px 0 rgb(255, 255, 255);
 }
 
 
 .productContent{
     overflow: hidden;
     font-size: 14px;
-    padding: 5px;
-    background: white;
 }
-
-
-
-
 
 
 .productContent .name{
@@ -54,7 +47,6 @@
     font-size: 20px;
     font-weight: 700;
     letter-spacing: 0.4px;
-    line-height: 10px;
     font-family: "PT Sans", "Arial", sans-serif;
     white-space: nowrap;
 

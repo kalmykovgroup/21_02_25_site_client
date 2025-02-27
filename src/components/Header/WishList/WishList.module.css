@@ -1,7 +1,9 @@
 .favourites{
-
+    position: relative;
 }
+
 
 .favouritesIcon{
     width: 24px;
 }
+

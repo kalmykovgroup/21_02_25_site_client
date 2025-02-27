@@ -1,21 +1,29 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../../../store/store.ts";
 import styles from "./CategoryMenu.module.css";
-import {Link} from "react-router-dom";
-import {fetchCategoriesThunk, setActiveCategory} from "../../../store/header/categoriesSlice.ts";
+import {fetchCategoriesThunk, setIsOpenCategoryMenu} from "../../../store/header/categoriesSlice.ts";
 import arrowIcon from "../../../assets/images/category/arrow.svg";
 import {useEffect, useState} from "react";
 import { CategoryDto } from "../../../api/CategorySpace/CategoryService/Dtos/CategoryDto.ts";
+import {useNavigate} from "react-router-dom";
+import {toggleScroll} from "../../../store/scrollSlice.ts";
 
 export default function CategoryMenu() {
     const dispatch = useDispatch<AppDispatch>();
-    const {categories, activeCategory} = useSelector((state: RootState) => state.categorySlice);
+    const {categories} = useSelector((state: RootState) => state.categorySlice);
+
+    const {isOpenCategoryMenu} = useSelector((state: RootState) => state.categorySlice);
+
+    const [parentActiveCategory, setParentActiveCategory] = useState<CategoryDto | null>(null)
+
 
     useEffect(() => {
+        dispatch(toggleScroll(!isOpenCategoryMenu));
+        
         if (categories.length === 0) {
             dispatch(fetchCategoriesThunk());
         }
-    }, [dispatch, categories.length, categories]);
+    }, [dispatch, categories.length, categories, isOpenCategoryMenu]);
 
     const [openCategories, setOpenCategories] = useState<{ [key: string]: boolean }>({});
 
@@ -27,6 +35,14 @@ export default function CategoryMenu() {
         }));
     };
 
+    const navigate = useNavigate();
+
+    const handleCategoryClick = (category: CategoryDto) => {
+        dispatch(setIsOpenCategoryMenu(false));
+        navigate("/category", { state: category }); // ✅ Передаем объект через `state`
+    };
+
+
     // Показывает список подкатегорий (максимум 5, если не развернуто)
     const showRecentSubCategories = (category: CategoryDto) => {
         const isOpen = openCategories[category.id] ?? false;
@@ -36,10 +52,8 @@ export default function CategoryMenu() {
             <>
                 <ul>
                     {visibleCategories.map((sub) => (
-                        <li key={sub.id}>
-                            <Link className={styles.titleTwoSunCategory} to={`/categories`}>
-                                {sub.name}
-                            </Link>
+                        <li key={sub.id} className={styles.titleTwoSubCategory}  onClick={() => handleCategoryClick(sub)}>
+                              {sub.name}
                         </li>
                     ))}
                 </ul>
@@ -68,42 +82,45 @@ export default function CategoryMenu() {
         );
     };
 
-
     const subCategoriesTwoLevelOffset = (offset : number) => {
         return <>
-            {activeCategory?.subCategories
+            {parentActiveCategory?.subCategories
                 .filter((_, index) => (index - offset) % 3 === 0)
-                .map((category) => (subCategoriesTwoLevel(category) ))}
-        </>
+                .map((category) => <div className={styles.wrapper} key={category.id}>
+                    {subCategoriesTwoLevel(category)}
+                </div>
+                )}
+           </>
+
     }
 
     const subCategoriesTwoLevel = (category: CategoryDto) => {
-        return <>
-            <div className={styles.wrapper} key={category.id}>
+        return  (
                 <div className={styles.categoryDownList}>
-                    <Link className={styles.titleOneSunCategory} to={`/categories`}>
+                    <a href="#" className={styles.titleOneSunCategory} onClick={() => handleCategoryClick(category)}>
                         {category.name}
-                    </Link>
+                    </a>
                     <ul>
                         {showRecentSubCategories(category)}
                     </ul>
                 </div>
-            </div>
-        </>
+        )
+
     }
 
 
     return (
-        <>
-            <div className={styles.container}>
+        <div className={styles.categoryContainer}  style={{"display": isOpenCategoryMenu ? "block" : "none"}}>
 
+            <div className={styles.blackout} onClick={() => dispatch(setIsOpenCategoryMenu(false))}></div>
 
+            <div className={styles.content}>
                 <div className={styles.categories}>
                     <ul className={styles.leftCategoryMenu}>
                         {categories.map((category) => (
-                            <li key={category.id}
-                                className={`${styles.categoryItem} ${category.id === activeCategory?.id ? styles.active : ""}`}
-                                onMouseEnter={() => dispatch(setActiveCategory(category))}>
+                            <li key={category.id}  onClick={() => handleCategoryClick(category)}
+                                className={`${styles.categoryItem} ${category.id === parentActiveCategory?.id ? styles.active : ""}`}
+                                onMouseEnter={() => setParentActiveCategory(category)}>
                                 <img src={`/src/assets/category/${category.imgUrl}`} className={`${styles.icon}`}
                                      alt=""/>
                                 <span className={styles.name}>{category.name}</span>
@@ -112,11 +129,10 @@ export default function CategoryMenu() {
                         ))}
                     </ul>
                     <div className={styles.rightCategoryContainer}>
-                        <div>
-                            <Link className={`${styles.bigTitle}`} to={`/categories`}>
-                                {activeCategory?.name}
-                            </Link>
-                        </div>
+
+                            <a href="#" className={`${styles.bigTitle}`} onClick={() => handleCategoryClick(parentActiveCategory!)}>
+                                {parentActiveCategory?.name}
+                            </a>
                         <div>
 
                             <div className={styles.categoryContainer}>
@@ -131,7 +147,7 @@ export default function CategoryMenu() {
 
                 </div>
             </div>
-        </>
+        </div>
 
     );
 }

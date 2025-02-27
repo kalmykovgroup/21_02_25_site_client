@@ -1,5 +1,6 @@
 import React from "react";
 import styles from './Logo.module.css'
+import {Link} from "react-router-dom";
 
 interface LogoProps {
     className?: string
@@ -7,9 +8,9 @@ interface LogoProps {
 
 const Logo: React.FC<LogoProps> = ({className}: LogoProps) => {
     return (
-        <div className={`${className} ${styles.logo}`}>
+        <Link className={`${className} ${styles.logo}`} to={`/`}>
             Kalmykov Group
-        </div>
+        </Link>
     )
 }
 

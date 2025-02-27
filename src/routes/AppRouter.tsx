@@ -8,8 +8,10 @@ import ProtectedRoute from "./ProtectedRoute";
 import {NotificationCenter} from "../components/NotificationCenter/NotificationCenter.tsx";
 import MainLayout from "../layouts/Main/MainLayout.tsx";
 import LoginModal from "../components/Auth/LoginModal.tsx";
+import React from "react";
+import CategoryContainer from "../pages/CategoryContainer/CategoryContainer.tsx";
 
-const AppRouter = () => {
+const AppRouter: React.FC = () => {
     return (
         <Router>
             <LoginModal/>
@@ -22,6 +24,7 @@ const AppRouter = () => {
                     <Route path="/profile" element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/favorites" element={<WishList />} />
+                    <Route path="/category" element={<CategoryContainer/>} />
 
                     {/* Доступ к Orders только для авторизованных пользователей */}
                     <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />

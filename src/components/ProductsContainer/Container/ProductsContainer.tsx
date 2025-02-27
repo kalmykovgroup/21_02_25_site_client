@@ -1,3 +1,4 @@
+/*
 import React, {
     useEffect,
     useCallback,
@@ -5,16 +6,13 @@ import React, {
 } from "react";
 import ProductCard from "../Card/ProductCard";
 import { useAppDispatch, useAppSelector } from "../../../hooks/hooks";
-import {
-    fetchProductsThunk,
-    setPage
-} from "../../../store/productSpace/productsSlice.ts";
+import { fetchProductsThunk, setPage } from "../../../store/productSpace/productsSlice.ts";
 import styles from "./ProductsContainer.module.css";
 
 
-/**
+/!**
  * Компонент со списком товаров, подгружающихся "бесконечно" (infinite scroll).
- */
+ *!/
 const ProductsContainer: React.FC = () => {
     const dispatch = useAppDispatch();
 
@@ -23,45 +21,60 @@ const ProductsContainer: React.FC = () => {
         products,
         page,
         loading,
-        hasMore,
-        search
+        hasMore
     } = useAppSelector((state) => state.productsSlice);
 
-    // При изменении `page` или `search` (и т.д.) подтягиваем данные
+    const query: string  = useAppSelector((state ) => state.searchSlice.query)
+    const selectedCategory = useAppSelector((state ) => state.categorySlice.selectedCategory)
+    
     useEffect(() => {
-        dispatch(fetchProductsThunk({ page, search }));
-    }, [dispatch, page, search]);
+        if(products.length == 0 && hasMore){
+            dispatch(fetchProductsThunk({ page : page, search: query, categoryId: selectedCategory?.id }));
+        }
+    });
+    
+    const getNextPage = useCallback(() => {
 
-    // Реализация IntersectionObserver, чтобы подгружать следующую страницу,
-    // когда последний элемент списка появляется в зоне видимости
+        const currentPage  =  page + 1;
+        dispatch(setPage(currentPage));
+        dispatch(fetchProductsThunk({ page: currentPage, search: query, categoryId: selectedCategory?.id }));
+
+    }, [dispatch, page, query, selectedCategory?.id]);
+
     const observer = useRef<IntersectionObserver | null>(null);
 
-    /**
-     * Колбэк, который привязываем к "последнему" элементу списка.
-     * Когда этот элемент "на виду" — подгружаем следующую страницу (если она есть).
-     */
     const lastElementRef = useCallback((node: HTMLDivElement | null) => {
-        // Если сейчас идёт загрузка, не надо дёргать запрос снова
-        if (loading) return;
 
-        // Если уже создавали observer — отключаем его от предыдущего элемента
+        // ✅ Если загрузка или нет данных для подгрузки, выходим
+        if (loading || !hasMore) return;
+
+        // ✅ Если уже есть observer — отключаем его
         if (observer.current) {
             observer.current.disconnect();
         }
 
-        // Создаём новый IntersectionObserver
-        observer.current = new IntersectionObserver((entries) => {
-            // Проверяем, что элемент появился в зоне видимости
-            if (entries[0].isIntersecting && hasMore) {
-                dispatch(setPage(page + 1));
-            }
-        });
+        observer.current = new IntersectionObserver(
+            (entries, observerInstance) => {
+                if (entries[0].isIntersecting) {
+                    getNextPage(); // ✅ Загружаем следующую страницу
+                    observerInstance.unobserve(entries[0].target); // ✅ Остановить слежение за этим элементом
+                }
+            },
+            { threshold: 1.0 } // ✅ Сработает только если элемент полностью в зоне видимости
+        );
 
-        // Если есть DOM-элемент, начинаем его "наблюдать"
         if (node) observer.current.observe(node);
 
-    }, [loading, page, hasMore, dispatch]);
+    }, [loading, hasMore, getNextPage]);
 
+// ✅ Очистка `IntersectionObserver` при размонтировании
+    useEffect(() => {
+        return () => {
+            if (observer.current) {
+                observer.current.disconnect();
+            }
+        };
+    }, []);
 
 
     return (
@@ -69,7 +82,7 @@ const ProductsContainer: React.FC = () => {
 
             {products.map((product, index) => {
                 // Для последней карточки в списке вешаем ref, чтобы ловить «конец» списка
-                if (index === products.length - 1) {
+                if (index === products.length - (products.length > 13 ? 12 : 1)) {
                     return (
                         <div ref={lastElementRef} key={product.id}>
                             <ProductCard product={product} />
@@ -82,10 +95,12 @@ const ProductsContainer: React.FC = () => {
                 }
             })}
 
-            {/* Если идёт загрузка — можем показать спиннер или лоадер */}
+            {/!* Если идёт загрузка — можем показать спиннер или лоадер *!/}
             {loading && <div className={styles.loading}>Загрузка...</div>}
         </div>
     );
 };
 
+
 export default ProductsContainer;
+*/

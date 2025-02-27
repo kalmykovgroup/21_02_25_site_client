@@ -1,10 +1,11 @@
 .wishListItemContainer{
-    width: 450px;
-    height: 150px;
-    border: 1px solid black;
+    height: 100px;
+    width: min-content;
     position: relative;
     display: flex;
     gap: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 5px #000;
 }
 
 .imageContainer{
@@ -16,12 +17,16 @@
     display: flex;
     align-items: flex-end;
     font-size: 16px;
-    color: white;
+    color: #000000;
+    border: 1px solid red;
+    width: 200px;
 }
 
 .priceContainer{
+    width: 150px;
     display: flex;
     align-items: flex-end;
     font-size: 20px;
-    color: #ffffff;
+    color: #000000;
+    border: 1px solid red;
 }

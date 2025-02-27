@@ -6,7 +6,6 @@ import apiClient from "../../clientApi.ts";
 
 export async function fetchCategories(): Promise<CategoryDto[]> {
 
-
     const response = await apiClient.get<CategoryDto[]>(`/categories`);
 
     return response.data

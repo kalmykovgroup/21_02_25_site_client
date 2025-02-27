@@ -1,0 +1,40 @@
+.loader {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    border: 2px solid gray;
+}
+
+.border {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: 2px solid transparent;
+    animation: diagonalFill 2s linear infinite;
+}
+
+@keyframes diagonalFill {
+    0% {
+        border-color: gray transparent transparent gray;
+    }
+    25% {
+        border-color: #3498db gray transparent transparent;
+    }
+    50% {
+        border-color: #3498db #3498db gray transparent;
+    }
+    75% {
+        border-color: #3498db #3498db #3498db gray;
+    }
+    100% {
+        border-color: #3498db;
+    }
+}
