@@ -1,8 +1,9 @@
 import React from "react";
 import styles from "../../Header/Menu/Menu.module.css";
 import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "../../../store/store.ts";
-import {setIsOpenCategoryMenu} from "../../../store/header/categoriesSlice.ts";
+import {AppDispatch} from "../../../store/types.ts";
+import {selectCategoriesIsOpenCategoryMenu} from "../../../store/categories";
+import {setIsOpenCategoryMenu} from "../../../store/categories/categoriesSlice.ts";
 
 interface MenuProps {
     className?: string
@@ -11,7 +12,8 @@ interface MenuProps {
 const Menu: React.FC<MenuProps> = ({className}: MenuProps) => {
 
     const dispatch = useDispatch<AppDispatch>();
-    const {isOpenCategoryMenu} = useSelector((state: RootState) => state.categorySlice);
+
+    const isOpenCategoryMenu = useSelector(selectCategoriesIsOpenCategoryMenu);
 
     return (
             <button className={`${styles.menu} ${className || ''}`}

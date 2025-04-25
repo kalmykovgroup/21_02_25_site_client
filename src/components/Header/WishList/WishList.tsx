@@ -5,7 +5,7 @@ import common from "../../Header/Common.module.css";
 import {Link} from "react-router-dom";
 import favoritesIcon from "../../../assets/images/favorites.svg";
 import {useSelector} from "react-redux";
-import {RootState} from "../../../store/store.ts";
+import {RootState} from "../../../store/types.ts";
 
 interface FavouritesProps {
     className?: string
@@ -13,7 +13,7 @@ interface FavouritesProps {
 
 const WishList: React.FC<FavouritesProps> = ({className}: FavouritesProps) => {
 
-    const { wishList } = useSelector((state: RootState) => state.wishListSlice);
+    const { wishList } = useSelector((state: RootState) => state.wishList);
 
     return <>
         <Link className={`${className} ${styles.favourites} ${common.header_right_item}`} to={`/favorites`}>

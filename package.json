@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "postbuild": "rm -rf ../kalmykov-group-store-backend/Api/wwwroot/* && cp -r dist/* ../kalmykov-group-store-backend/Api/wwwroot/",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -24,8 +25,9 @@
     "react-router-dom": "^7.1.5",
     "redux-persist": "^6.0.0",
     "serialize-javascript": "^6.0.2",
+    "swiper": "^11.2.4",
     "universal-cookie": "^7.2.2",
-    "vite": "^6.1.1"
+    "vite": "^6.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

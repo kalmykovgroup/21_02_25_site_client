@@ -1,0 +1,29 @@
+.navContainer{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.navContainer .link{
+    background: #f5f4f2;
+    border-radius: 7px;
+    color: black;
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+    padding: 4px 8px;
+}
+
+.navContainer .arrowIcon{
+    fill: #000000;
+    width: 10px;
+    height: 10px;
+}
+
+.navContainer .endLink{
+    background: transparent;
+    border-radius: 0;
+    border-bottom: 1px solid #7e7e7e;
+}

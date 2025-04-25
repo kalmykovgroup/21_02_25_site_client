@@ -1,17 +1,24 @@
 import {useDispatch, useSelector} from "react-redux";
-import {RootState, AppDispatch} from "../../../store/store.ts";
-import {setFocus,  addToHistory, removeFromHistory} from "../../../store/header/searchSlice.ts";
 import styles from "./SearchBar.module.css";
 import React, {useEffect, useMemo, useRef, useState} from "react";
+import useDebounce from "../../../utils/useDebounce.ts";
+import {useNavigate} from "react-router-dom";
+import {ROUTES} from "../../../routes/routes.ts";
 import {
-    executeSearchChange,
-    fetchProductSuggestionsThunk
-} from "../../../store/productSpace/productsSlice.ts";
-import useDebounce from "./../../../useDebounce.ts";
+    fetchAutocompleteSuggestions,
+    selectSearchHistory,
+    selectSearchQuery,
+    selectSearchSuggestions
+} from "../../../store/search";
+import {addToHistory, removeHistoryItem} from "../../../store/search/searchSlice.ts";
+
+
+import {AppDispatch, SearchGetParam} from "../../../store/types.ts";
 
 interface SearchBarProps {
     className?: string
 }
+
 
 interface HighlightedSuggestion {
     text: string; // Оригинальный текст
@@ -21,28 +28,21 @@ interface HighlightedSuggestion {
     }[];
 }
 
+
 const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
+
+
     const dispatch = useDispatch<AppDispatch>();
-    const {isFocused, query, searchHistory} = useSelector((state: RootState) => state.searchSlice);
-    const {arrayOfSuggestions} = useSelector((state: RootState) => state.productsSlice);
+    const query = useSelector(selectSearchQuery);
+    const history = useSelector(selectSearchHistory);
+    const uploadedSuggestions = useSelector(selectSearchSuggestions);
+    const [input, setInput] = useState(query); // Локальное состояние для мгновенного отклика
 
-    const [inputValue, setInputValue] = useState(query);
+    const [focus, setFocus] = useState(false);
 
-    const [suggestions, setSuggestions] = useState<string[]>(searchHistory);
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        setInputValue(query);
-
-    }, [query]);
-
-    useEffect(() => {
-        if(inputValue.trim() !== ''){
-            setSuggestions(arrayOfSuggestions)
-        }else{
-            setSuggestions(searchHistory)
-        }
-
-    }, [arrayOfSuggestions, searchHistory, inputValue]);
+    const [suggestions, setSuggestions] = useState<string[]>(history);
 
     //Для управления фокусом search input
     const inputRef = useRef<HTMLInputElement>(null); // ✅ Референс для input
@@ -53,62 +53,77 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
     //Ссылка на список (ul), под поисковой строкой(история, названия возможных товаров)
     const filteredSuggestionsRef = useRef<HTMLUListElement | null>(null);
 
+    //Если ввод пустой, отображаем историю, иначе подгружаем с сервера подсказки
+    useEffect(() => {
+        if(input.trim() !== ''){
+            setSuggestions(uploadedSuggestions)
+        }else{
+            setSuggestions(history)
+        }
+
+    }, [uploadedSuggestions, history, input]);
+
+    useEffect(() => { //Когда мы покидаем из страницы найденных товаров, то мы все сбрасываем.
+        setInput(query);
+    }, [query]);
+
     // Дебаунсируем ввод пользователя с задержкой 300 мс
-    const debouncedQuery = useDebounce(inputValue, 300);
+    const debouncedQuery = useDebounce(input, 300);
 
     //Запрос на получение подсказок
     useEffect(() => {
 
         if (debouncedQuery.trim() === "") return;
 
-        dispatch(fetchProductSuggestionsThunk(debouncedQuery));
+        dispatch(fetchAutocompleteSuggestions(debouncedQuery));
 
     }, [debouncedQuery, dispatch]);
 
+    //Сбрасывает состояние выбора истории или подсказки, если начинаем вводить
     useEffect(() => {
         setSelectedIndex(null);
-    }, [inputValue]);
+    }, [input]);
 
     //Метод вызывается двумя способами, кнопка и enter
     const handleSubmit = (selectedText? : string) => {
 
-        inputRef.current?.blur();
-        dispatch(setFocus(false))
+        if(!selectedText && (!input || input.trim() === "")) return;
 
-        let enterTxt: string;
+        inputRef.current?.blur();
+
+        setFocus(false)
+
+        let newQuery: string;
 
         if(selectedText){
-            enterTxt = selectedText
-            setInputValue(selectedText)
+            newQuery = selectedText
+            setInput(selectedText)
         }else{
-            enterTxt = inputValue
+            newQuery = input
         }
 
-        if(enterTxt.trim() === query.trim() || (enterTxt.trim() === "" && query.trim() === "")){
-            console.log("Повторный запрос отменен!")
+        if(newQuery.trim() === query?.trim()){
+            console.log("Попытка отправить повторный запрос.")
             return
-        };
-        //История поисковых запросов
-        if (enterTxt.trim() && enterTxt.trim() !== "" && !selectedText) {
-            dispatch(addToHistory(enterTxt));
         }
 
-        //Если мы что-то искали и хотим вернуться к началу, выполняем запрос с пустой поисковой строкой.
-        //Мы проверяем что запрос до этого был, мы все стерли и хотим вернуться.
-        //query.trim() !== "" - это подтверждает что запрос с какими-то данными уже был.
-        dispatch(executeSearchChange(enterTxt));
+        if(newQuery.trim() === ""){
+            console.log("Попытка отправить пустой запрос.")
+            return;
+        }
+
+        dispatch(addToHistory(newQuery));
+
+        navigate(`${ROUTES.SEARCH}?${SearchGetParam.QUERY}=${encodeURIComponent(newQuery)}`);
     };
-    
+
     //Если изменили и убрали фокус с input, то нужно вернуть его в исходное состояние
-    const handlerReset = () =>{
-        setInputValue(query)
-        dispatch(setFocus(false))
+    const handlerReset = () => {
+        setInput(query)
+        setFocus(false)
     }
 
-    //Очистка поисковой строки
-    const handleRemoveHistory = (item: string) => {
-        dispatch(removeFromHistory(item));
-    };
+
 
 // Полная функция экранирования для RegExp
     const escapeRegExp = (string: string) => {
@@ -117,10 +132,10 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
 
     const useFilteredSuggestions = (
         suggestions: string[],
-        inputValue: string
+        input: string
     ): HighlightedSuggestion[] => {
         return useMemo(() => {
-            const query = inputValue.trim();
+            const query = input.trim();
             if (!query) {
                 return suggestions.map(text => ({
                     text,
@@ -172,10 +187,10 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
 
                 return { text, parts };
             });
-        }, [suggestions, inputValue]);
+        }, [suggestions, input]);
     };
 
-    const filtered = useFilteredSuggestions(suggestions, inputValue);
+    const filtered = useFilteredSuggestions(suggestions, input);
 
 
     // ✅ Перемещение по списку и прокрутка
@@ -183,7 +198,7 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
         if (event.key === "ArrowDown") {
             event.preventDefault();
             if(filtered.length == 0) return;
-             setSelectedIndex((prevIndex) => {
+            setSelectedIndex((prevIndex) => {
                 const nextIndex = prevIndex === null ? 0 : prevIndex + 1;
                 if (nextIndex < filtered.length) {
                     scrollToItem(nextIndex);
@@ -194,9 +209,9 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
         } else if (event.key === "ArrowUp") {
             event.preventDefault();
             if(filtered.length == 0) return;
-             setSelectedIndex((prevIndex) => {
+            setSelectedIndex((prevIndex) => {
                 const prev = prevIndex === null ? filtered.length - 1 : prevIndex - 1;
-                 if(prev == -1){
+                if(prev == -1){
                     return null
                 }
 
@@ -207,14 +222,12 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
                 return prevIndex;
             });
         } else if (event.key === "Enter" && selectedIndex !== null) {
-           if(filtered.length == 0) return;
-           handleSubmit(filtered[selectedIndex].text.replace("\u00A0", " ")); // ✅ Теперь `.text` существует!
+            if(filtered.length == 0) return;
+            handleSubmit(filtered[selectedIndex].text.replace("\u00A0", " ")); // ✅ Теперь `.text` существует!
         }else if(event.key === "Enter"){
             handleSubmit()
         }
     };
-
-
 
     // ✅ Функция прокрутки к активному элементу
     const scrollToItem = (index: number) => {
@@ -227,10 +240,12 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
     };
 
 
+
+
     return (
         <div className={`${styles.searchWrapper} ${className}`}>
             {/* Затемнение экрана */}
-            {isFocused && <div className={styles.overlay} onClick={() => handlerReset()}/>}
+            {focus && <div className={styles.overlay} onClick={() => handlerReset()}/>}
 
 
             {/* Поле поиска с кнопкой */}
@@ -240,12 +255,12 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
                     type="text"
                     className={styles.searchInput}
                     placeholder="Поиск..."
-                    value={inputValue}
+                    value={input}
                     onKeyDown={handleKeyDown}
-                    onFocus={() => dispatch(setFocus(true))}
-                    onChange={(e) =>  setInputValue(e.target.value)}
+                    onFocus={() => setFocus(true)}
+                    onChange={(e) =>  setInput(e.target.value)}
                 />
-                <button className={styles.clearSearch} onClick={() =>  setInputValue("")}>
+                <button className={styles.clearSearch} onClick={() =>  setInput("")}>
                     <svg className={styles.clearSearchIcon} width="24" height="24" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 4L20 20M20 4L4 20" strokeWidth="1.5" strokeLinecap="round"/>
@@ -257,7 +272,7 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
                 </button>
             </div>
 
-            {isFocused && filtered.length > 0 && (
+            {focus && filtered.length > 0 && (
 
                 <ul className={styles.historyList} ref={filteredSuggestionsRef}>
                     {filtered.map((item, index) => (
@@ -271,24 +286,24 @@ const SearchBar : React.FC<SearchBarProps> = ({className}: SearchBarProps) =>  {
                                 tabIndex={0}
                             >
                                 {item.parts.map((part, partIndex) => (
-                                   part.highlighted
-                                   ?
-                                      <span key={`${item.text}-${partIndex}`} className={styles.highlight} >
+                                    part.highlighted
+                                        ?
+                                        <span key={`${item.text}-${partIndex}`} className={styles.highlight} >
                                         {part.value.replace(" ", "\u00A0")}
                                       </span>
-                                   :
-                                      <span key={`${item.text}-${partIndex}`}>
+                                        :
+                                        <span key={`${item.text}-${partIndex}`}>
                                           {part.value.replace(" ", "\u00A0")}
                                       </span>
 
                                 ))}
                             </div>
-                            {inputValue.trim().length == 0 && (
+                            {input.trim().length == 0 && (
                                 <button
                                     className={styles.removeButton}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleRemoveHistory(item.text);
+                                        dispatch(removeHistoryItem(item.text));
                                     }}
                                     aria-label="Удалить из истории"
                                 >

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../../hooks/hooks.ts";
-import { removeNotification } from "../../store/notificationSlice.ts";
+import { removeNotification } from "../../store/notificationsSlice.ts";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./NotificationCenter.module.css";
 
@@ -10,7 +10,7 @@ export const NotificationCenter = () => {
 
     useEffect(() => {
         const timers = notifications.map((notification) =>
-            setTimeout(() => dispatch(removeNotification(notification.id)), 1000)
+            setTimeout(() => dispatch(removeNotification(notification.id)), 1)
         );
 
         return () => timers.forEach(clearTimeout);

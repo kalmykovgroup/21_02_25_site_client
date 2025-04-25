@@ -7,6 +7,17 @@
     z-index: 2;
 }
 
+.categoryContainer a{
+    color: #222;
+}
+
+.activeCategoryContainer__item a:hover{
+    color: red;
+}
+.activeCategoryContainer__title a:hover{
+    color: red;
+}
+
 @keyframes showMenu {
     0% {
         opacity: 0;
@@ -36,7 +47,86 @@
     overflow-y: scroll;
     scrollbar-width: auto;
     scrollbar-color: #494949 rgba(186, 186, 186, 0.3);
+    display: flex;
+    gap: 20px;
+    padding: 0 20px;
 }
+
+.listNamesParentCategories{
+    width: 300px;
+    border-right: 1px solid #cdcdcd;
+    list-style: none;
+    padding: 10px;
+}
+
+.listNamesParentCategories__item.active{
+    background: #efefef;
+}
+
+.listNamesParentCategories__item .arrowIcon{
+    fill: #b6b6b6;
+    width: 17px;
+    height: 17px;
+}
+.listNamesParentCategories__item{
+    height: 40px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    padding: 0 5px;
+
+    font-family: YS Text,Helvetica,Arial,sans-serif;
+    font-size: 15px;
+    gap: 5px;
+    justify-content: start;
+
+    color: #000;
+    cursor: pointer;
+}
+
+.activeCategoryContainer{
+    width: 100%;
+    max-width: 750px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+}
+
+.activeCategoryContainer__title{
+    grid-column: 1 / -1;
+    height: 50px;
+}
+.activeCategoryContainer__title a{
+    font-size: 28px;
+    height: 36px;
+    color: #222;
+    font-weight: 700;
+    line-height: 1.29;
+    transition: color .25s;
+    margin-bottom: 24px;
+    display: inline-block;
+    outline: none;
+    font-family: YS Text, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+
+    cursor: pointer;
+}
+
+
+
+.activeCategoryContainer__item{
+    width: 100%;
+    list-style: none;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+
+/*
 
 .categories{
     color: black;
@@ -164,30 +254,6 @@
     color: red;
 }
 
-.toggleButtonRollDown,
-.toggleButtonRollUp{
-    cursor: pointer;
-    line-height: 16px;
-    font-size: 14px;
-    color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.toggleButtonRollDown:hover,
-.toggleButtonRollUp:hover,
-.toggleButtonRollDown:hover svg,
-.toggleButtonRollUp:hover svg{
-    color: red;
-    fill: red;
-}
-
-.toggleButtonRollDown svg,
-.toggleButtonRollUp svg
-{
-    width: 17px;
-    fill: rgba(0, 0, 0, 0.4);
-}
+*/
 
 

@@ -1,0 +1,22 @@
+
+
+.productItem{
+    color: black;
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+}
+
+
+.productContent{
+    overflow: hidden;
+    font-size: 14px;
+}
+
+
+
+
+
+
+
+

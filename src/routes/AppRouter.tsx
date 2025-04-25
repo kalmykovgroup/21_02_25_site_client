@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route,} from "react-router-dom";
 import Home from "../pages/Home/Home.tsx";
 import UserProfile from "../pages/UserProfile/UserProfile.tsx";
 import Cart from "../pages/Cart/Cart.tsx";
@@ -8,31 +8,68 @@ import ProtectedRoute from "./ProtectedRoute";
 import {NotificationCenter} from "../components/NotificationCenter/NotificationCenter.tsx";
 import MainLayout from "../layouts/Main/MainLayout.tsx";
 import LoginModal from "../components/Auth/LoginModal.tsx";
-import React from "react";
-import CategoryContainer from "../pages/CategoryContainer/CategoryContainer.tsx";
+import React, {useEffect} from "react";
+import SearchPage from "../pages/SearchPage/SearchPage.tsx";
+import NotFoundPage from "../pages/NotFoundPage/NotFoundPage.tsx";
+import {useDispatch, useSelector} from "react-redux";
+import {RenderCategoryRoutes} from "./RenderCategoryRoutes.tsx";
+import {ROUTES} from "./routes.ts";
+import ErrorScreen from "../pages/ErrorScreen/ErrorScreen.tsx";
+import {AppDispatch, LoadingStatus} from "../store/types.ts";
+import {
+    fetchCategoriesThunk,
+    selectCategories,
+    selectCategoriesIsFetched,
+    selectCategoriesStatus
+} from "../store/categories";
 
 const AppRouter: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const status = useSelector(selectCategoriesStatus);
+    const isFetched = useSelector(selectCategoriesIsFetched);
+    const categories = useSelector(selectCategories);
+
+    useEffect(() => {
+        if (
+            !isFetched &&
+            categories.length == 0 &&
+            status != LoadingStatus.Failed &&
+            status != LoadingStatus.Loading) {
+            dispatch(fetchCategoriesThunk());
+        }
+    }, [categories.length, dispatch, isFetched, status]);
+
+
+
     return (
         <Router>
             <LoginModal/>
             <NotificationCenter/>
             <Routes>
-                <Route path="/" element={<MainLayout />}>
+                <Route path={ROUTES.HOME} element={<MainLayout />}>
 
-                    <Route path="/" element={<Home />} />
+                    <Route index element={<Home />} />
+                    <Route path={ROUTES.SEARCH} element={<SearchPage />} />
 
-                    <Route path="/profile" element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/favorites" element={<WishList />} />
-                    <Route path="/category" element={<CategoryContainer/>} />
+                    <Route path={ROUTES.PROFILE} element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
+                    <Route path={ROUTES.CART} element={<Cart />} />
+                    <Route path={ROUTES.FAVORITES} element={<WishList />} />
 
-                    {/* Доступ к Orders только для авторизованных пользователей */}
-                    <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                    <Route path={ROUTES.CATEGORY}>
+                        {RenderCategoryRoutes(categories)}
+                        <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+                    </Route>
+
+                    <Route path={ROUTES.ORDERS} element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+
+                    <Route path={ROUTES.ERROR_SCREEN} element={<ErrorScreen/>} />
+
                 </Route>
 
 
                 {/* Если страница не найдена, редирект на Home */}
-                <Route path="*" element={<Navigate to="/" />} />
+               <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage/>} />
 
             </Routes>
         </Router>
@@ -40,3 +77,4 @@ const AppRouter: React.FC = () => {
 };
 
 export default AppRouter;
+

@@ -2,12 +2,12 @@
 import styles from "./WishListItemsContainer.module.css";
 import React from "react";
 import {useSelector} from "react-redux";
-import {RootState} from "../../../store/store.ts";
 import WishListItem from "./WishListItem/WishListItem.tsx";
+import {RootState} from "../../../store/types.ts";
 
 const WishListItemsContainer: React.FC = ( ) => {
 
-    const { wishList, isLoading} = useSelector((state: RootState) => state.wishListSlice);
+    const { wishList, isLoading} = useSelector((state: RootState) => state.wishList);
 
 
     if (isLoading) return <p>Загрузка избранного...</p>;

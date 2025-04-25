@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+
 interface ScrollState {
     isScrollEnabled: boolean;
 }
@@ -7,6 +8,7 @@ interface ScrollState {
 const initialState: ScrollState = {
     isScrollEnabled: true, // ✅ По умолчанию скролл включен
 };
+
 
 const scrollSlice = createSlice({
     name: "scroll",
@@ -28,6 +30,8 @@ const scrollSlice = createSlice({
         },
     },
 });
+
+
 
 export const { toggleScroll } = scrollSlice.actions;
 export default scrollSlice.reducer;

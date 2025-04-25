@@ -6,9 +6,9 @@ import { LoginResponse } from "../../api/UserSpace/CustomerService/Responses/Log
 import { VerifyPhoneCodeResponse } from "../../api/UserSpace/CustomerService/Responses/VerifyPhoneCodeResponse";
 import { LogoutResponse } from "../../api/UserSpace/CustomerService/Responses/LogoutResponse";
 import { CustomerDto } from "../../api/UserSpace/CustomerService/Dtos/CustomerDto";
-import {addNotification} from "../notificationSlice.ts";
-import {syncWishListWithServer} from "../productSpace/wishListSlice.ts";
-import {AppDispatch} from "../store.ts";
+import {addNotification} from "../notificationsSlice.ts";
+import {AppDispatch} from "../types.ts";
+import {syncWishListWithServer} from "../wishList";
 
 interface UnblockingPair {
     unblockingTime: number;
@@ -83,7 +83,7 @@ export const logoutThunk = createAsyncThunk<LogoutResponse, void, { rejectValue:
 
 // ✅ AuthSlice
 const authSlice = createSlice({
-    name: "auth",
+    name: "authSlice",
     initialState,
     reducers: {
         resetAuthState: (state) => {
@@ -181,6 +181,8 @@ const authSlice = createSlice({
             });
     },
 });
+
+
 
 export const { resetAuthState, resetError, back, setIsSentCode } = authSlice.actions;
 export default authSlice.reducer;

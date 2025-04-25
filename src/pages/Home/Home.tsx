@@ -1,13 +1,15 @@
 
 import React from "react";
 import styles from "./Home.module.css"
-import HomeProductsContainer from "../../components/ProductsContainer/HomeProductContainer/HomeProductContainer.tsx";
+import PromoSlider from "../../components/PromoSlider/PromoSlider.tsx";
+import MainWindowProducts from "./MainWindowProducts/MainWindowProducts.tsx";
 
 const Home: React.FC = () => {
 
     return (
         <div className={styles.homeContainer}>
-            <HomeProductsContainer />
+            <PromoSlider />
+            <MainWindowProducts/>
         </div>
     );
 };

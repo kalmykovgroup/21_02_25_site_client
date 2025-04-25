@@ -3,7 +3,7 @@ import React from "react";
 import Logo from "./Logo/Logo.tsx";
 import Menu from "./Menu/Menu.tsx";
 import CategoryMenu from "./CategoryMenu/CategoryMenu.tsx";
-import {useDevice} from "../../DeviceContext.tsx";
+import {useDevice} from "../../utils/DeviceContext.tsx";
 import Orders from "./Orders/Orders.tsx";
 import WishList from "./WishList/WishList.tsx";
 import Cart from "./Cart/Cart.tsx";

@@ -1,0 +1,92 @@
+/* Общий контейнер */
+
+/* ─── Десктопный вариант ─── */
+
+.container{
+    display: grid;
+    grid-auto-rows: auto;
+    grid-auto-flow: dense;
+    gap: 10px;
+    align-items: stretch;
+
+}
+
+
+
+.desktop{
+    grid-template-columns: repeat(6, 1fr);
+}
+
+.tablet{
+    grid-template-columns: repeat(4, 1fr);
+}
+.mobile{
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.recommendedGroup {
+    align-items: stretch;
+    grid-row-end: span 2;
+    grid-column-end: span 2;
+    gap: 10px;
+    padding: 20px;
+    background-color: #7872af;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    justify-content: space-between;
+
+}
+
+
+.recommendedGroup .title{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.recommendedGroup .title .left{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+.recommendedGroup .title .right{
+
+    display: flex;
+    justify-content: flex-end;
+}
+
+.recommendedGroup .title .right .all{
+    width: 70px;
+    height: 40px;
+    border: 1px solid #404040;
+    border-radius: 10px;
+    font-weight:  500;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 15px;
+}
+
+
+.recommendedGroup .title .leftTop{
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.recommendedGroup .title .leftBottom{
+    max-height: 93px;
+    word-wrap: break-word;
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 31px;
+}
+
+.recommendedGroup  .featuredProducts{
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+}
+

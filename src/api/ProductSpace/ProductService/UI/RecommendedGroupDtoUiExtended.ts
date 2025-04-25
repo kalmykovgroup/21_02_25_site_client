@@ -8,9 +8,9 @@ export interface RecommendedGroupDtoUiExtended extends RecommendedGroupDto {
 
 
 // ✅ Функция-конвертер из API DTO в UI модель
-export function mapRecommendedGroupUI(dto: RecommendedGroupDto): RecommendedGroupDtoUiExtended {
+export function mapRecommendedGroupUI(dto: RecommendedGroupDto, idx: Set<string> | undefined = undefined): RecommendedGroupDtoUiExtended {
     return {
         ...dto,
-        products: dto.products.map(p => mapShortProductUI(p)), // ✅ Здесь корректно вызываем `mapShortProductUI`
+        products: dto.products.map(p => mapShortProductUI(p, idx?.has(p.id) ?? false)), // ✅ Здесь корректно вызываем `mapShortProductUI`
     };
 }

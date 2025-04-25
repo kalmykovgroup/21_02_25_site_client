@@ -1,112 +1,54 @@
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../../../store/store.ts";
 import styles from "./CategoryMenu.module.css";
-import {fetchCategoriesThunk, setIsOpenCategoryMenu} from "../../../store/header/categoriesSlice.ts";
-import arrowIcon from "../../../assets/images/category/arrow.svg";
-import {useEffect, useState} from "react";
-import { CategoryDto } from "../../../api/CategorySpace/CategoryService/Dtos/CategoryDto.ts";
-import {useNavigate} from "react-router-dom";
-import {toggleScroll} from "../../../store/scrollSlice.ts";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {Link} from "react-router-dom";
+import SubCategoryItem from "./SubCategoryItem/SubCategoryItem.tsx";
+import useRouteChange from "../../../routes/useRouteChange.ts";
+import {ROUTES} from "../../../routes/routes.ts";
+import {CategoryDtoUiExtended} from "../../../api/CategorySpace/CategoryService/Ui/CategoryDtoUiExtended.ts";
+import {AppDispatch} from "../../../store/types.ts";
+import {
+    selectCategories,
+    selectCategoriesIsOpenCategoryMenu
+} from "../../../store/categories";
+import {setIsOpenCategoryMenu} from "../../../store/categories/categoriesSlice.ts";
 
 export default function CategoryMenu() {
     const dispatch = useDispatch<AppDispatch>();
-    const {categories} = useSelector((state: RootState) => state.categorySlice);
-
-    const {isOpenCategoryMenu} = useSelector((state: RootState) => state.categorySlice);
-
-    const [parentActiveCategory, setParentActiveCategory] = useState<CategoryDto | null>(null)
 
 
-    useEffect(() => {
-        dispatch(toggleScroll(!isOpenCategoryMenu));
-        
-        if (categories.length === 0) {
-            dispatch(fetchCategoriesThunk());
-        }
-    }, [dispatch, categories.length, categories, isOpenCategoryMenu]);
+    const isOpenCategoryMenu = useSelector(selectCategoriesIsOpenCategoryMenu);
+    const categories = useSelector(selectCategories);
 
-    const [openCategories, setOpenCategories] = useState<{ [key: string]: boolean }>({});
+    const [parentActiveCategory, setParentActiveCategory] = useState<CategoryDtoUiExtended | null>(null)
+ 
 
-    // Функция для переключения состояния "развернуть / свернуть"
-    const toggleCategory = (categoryId: string) => {
-        setOpenCategories((prev) => ({
-            ...prev,
-            [categoryId]: !prev[categoryId],
-        }));
-    };
-
-    const navigate = useNavigate();
-
-    const handleCategoryClick = (category: CategoryDto) => {
+    useRouteChange(useCallback(() => {
         dispatch(setIsOpenCategoryMenu(false));
-        navigate("/category", { state: category }); // ✅ Передаем объект через `state`
-    };
+    }, [dispatch]));
+  
+    useEffect(() => {
+        //dispatch(toggleScroll(!isOpenCategoryMenu));
+
+    });
 
 
-    // Показывает список подкатегорий (максимум 5, если не развернуто)
-    const showRecentSubCategories = (category: CategoryDto) => {
-        const isOpen = openCategories[category.id] ?? false;
-        const visibleCategories = category.subCategories.slice(0, isOpen ? category.subCategories.length : 5);
+    const columns = useMemo(() => {
+        const cols: CategoryDtoUiExtended[][] = [[], [], []];
 
-        return (
-            <>
-                <ul>
-                    {visibleCategories.map((sub) => (
-                        <li key={sub.id} className={styles.titleTwoSubCategory}  onClick={() => handleCategoryClick(sub)}>
-                              {sub.name}
-                        </li>
-                    ))}
-                </ul>
-                {category.subCategories.length > 5 && (
-                    <button onClick={() => toggleCategory(category.id)}>
-                        {isOpen ? (
-                            <div className={styles.toggleButtonRollDown}>
-                                <span>Свернуть</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path
-                                        d="m10 8.871 4.094 4.094 1.062-1.059L10 6.75l-5.154 5.154 1.06 1.061L10 8.871z"></path>
-                                </svg>
-                            </div>
-                        ) : (
-                            <div className={styles.toggleButtonRollUp}>
-                                <span>Еще</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path
-                                        d="M19.997 10.007 12 18.004l-7.997-7.997 1.414-1.414L12 15.176l6.583-6.583z"></path>
-                                </svg>
-                            </div>
-                        )}
-                    </button>
-                )}
-            </>
-        );
-    };
+        if (parentActiveCategory?.subCategories) {
+            // Сначала сортируем по полю index
+            const sortedSubCategories = [...parentActiveCategory.subCategories].sort((a, b) => a.index - b.index);
 
-    const subCategoriesTwoLevelOffset = (offset : number) => {
-        return <>
-            {parentActiveCategory?.subCategories
-                .filter((_, index) => (index - offset) % 3 === 0)
-                .map((category) => <div className={styles.wrapper} key={category.id}>
-                    {subCategoriesTwoLevel(category)}
-                </div>
-                )}
-           </>
+            // Затем распределяем по колонкам
+            sortedSubCategories.forEach((item, index) => {
+                cols[index % 3].push(item);
+            });
+        }
 
-    }
+        return cols;
+    }, [parentActiveCategory]);
 
-    const subCategoriesTwoLevel = (category: CategoryDto) => {
-        return  (
-                <div className={styles.categoryDownList}>
-                    <a href="#" className={styles.titleOneSunCategory} onClick={() => handleCategoryClick(category)}>
-                        {category.name}
-                    </a>
-                    <ul>
-                        {showRecentSubCategories(category)}
-                    </ul>
-                </div>
-        )
-
-    }
 
 
     return (
@@ -115,37 +57,54 @@ export default function CategoryMenu() {
             <div className={styles.blackout} onClick={() => dispatch(setIsOpenCategoryMenu(false))}></div>
 
             <div className={styles.content}>
-                <div className={styles.categories}>
-                    <ul className={styles.leftCategoryMenu}>
-                        {categories.map((category) => (
-                            <li key={category.id}  onClick={() => handleCategoryClick(category)}
-                                className={`${styles.categoryItem} ${category.id === parentActiveCategory?.id ? styles.active : ""}`}
-                                onMouseEnter={() => setParentActiveCategory(category)}>
-                                <img src={`/src/assets/category/${category.imgUrl}`} className={`${styles.icon}`}
-                                     alt=""/>
+
+                <menu className={styles.listNamesParentCategories}>
+                    {categories.map((category) => (
+
+                            <Link className={`${styles.listNamesParentCategories__item} ${category.id === parentActiveCategory?.id ? styles.active : ""}`}
+                                  onMouseEnter={() => setParentActiveCategory(category)}
+                                  key={category.id}
+                                  to={`${ROUTES.CATEGORY}/${category?.pathSegments.map(segment => segment.segment).join('/')}`}>
+
+                                <img src={category.icon} className={`${styles.icon}`} alt=""/>
+
                                 <span className={styles.name}>{category.name}</span>
-                                <img src={arrowIcon} className={`${styles.arrowIcon}`} alt=""/>
-                            </li>
-                        ))}
-                    </ul>
-                    <div className={styles.rightCategoryContainer}>
 
-                            <a href="#" className={`${styles.bigTitle}`} onClick={() => handleCategoryClick(parentActiveCategory!)}>
-                                {parentActiveCategory?.name}
-                            </a>
-                        <div>
+                                <svg className={styles.arrowIcon} viewBox="0 0 20 20"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 20l-1.4-1.4 6.6-6.6-6.6-6.6L10 4l8 8z"/>
+                                </svg>
 
-                            <div className={styles.categoryContainer}>
-                                {subCategoriesTwoLevelOffset(0)}
-                                {subCategoriesTwoLevelOffset(1)}
-                                {subCategoriesTwoLevelOffset(2)}
-                            </div>
+                            </Link>
+                    ))}
+                </menu>
 
+                <menu className={styles.activeCategoryContainer}>
 
-                        </div>
+                    <div className={styles.activeCategoryContainer__title}>
+                        <Link to={`${ROUTES.CATEGORY}/${parentActiveCategory?.pathSegments.map(segment => segment.segment).join('/')}`}>
+                            {parentActiveCategory?.name}
+                        </Link>
                     </div>
 
-                </div>
+
+
+                    <menu className={styles.activeCategoryContainer__item}>
+                        {columns[0].map((category) =>
+                            <SubCategoryItem key={category.id} category={category}/>)}
+                    </menu>
+
+                    <menu className={styles.activeCategoryContainer__item}>
+                        {columns[1].map((category) =>
+                            <SubCategoryItem key={category.id} category={category}/>)}
+                    </menu>
+
+                    <menu className={styles.activeCategoryContainer__item}>
+                        {columns[2].map((category) =>
+                            <SubCategoryItem key={category.id} category={category}/>)}
+                    </menu>
+                </menu>
+
             </div>
         </div>
 

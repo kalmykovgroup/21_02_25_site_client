@@ -2,8 +2,7 @@ import axios from "axios";
 import { store } from "../store/store"; // Импортируем Redux store
 import { logoutThunk } from "../store/userSpace/authSlice.ts";
 import {setAuthModalOpen} from "../store/uiSlice.ts";
-import {addNotification} from "../store/notificationSlice.ts";
-import i18n from "../i18n.ts";
+import {addNotification} from "../store/notificationsSlice.ts";
 
 const apiClient = axios.create({
     baseURL: "/api", // Автоматически проксируется через Vite
@@ -18,15 +17,14 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        console.error("❌ API Error:", error);
 
-        let errorMessage = "Произошла ошибка";
+        let errorMessage = "Произошла ошибка при запросе к api";
 
         if (error.response?.status === 401) {
-            console.warn("🔒 401 Unauthorized: Выход из системы...");
             store.dispatch(logoutThunk());
             store.dispatch(setAuthModalOpen(true));
-            errorMessage = i18n.t("errors.unauthorized");
+
+            errorMessage = error.response.data?.message || "Не авторизован";
         } else if (error.response) {
             // ✅ Достаем `message` из ответа сервера (если есть)
             errorMessage = error.response.data?.message || `Ошибка ${error.response.status}`;
@@ -38,5 +36,7 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+
 
 export default apiClient;

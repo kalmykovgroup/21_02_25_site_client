@@ -1,11 +1,12 @@
 export interface CategoryDto {
     id: string;
-    parentCategoryId: string | null;
-    imgUrl: string | null;
+    parentCategoryId?: string;
+    icon?: string;
     name: string;
-    description: string | null;
+    description?: string;
+    path: string;
     level: number;
-    fullPath: string; //Полный путь категории в иерархии
+    index: number;
 
     subCategories: CategoryDto[]
 }
